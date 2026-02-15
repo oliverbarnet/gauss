@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Stats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container" style="max-width: 760px;">
+        <div class="header" style="margin-bottom: 16px;">
+            <h1>My Stats</h1>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:10px;">
+            <span style="color:#334155; font-weight:600;">Signed in as {{ username }}</span>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-secondary" onclick="location.href='/'">Back To Game</button>
+                <button class="btn btn-secondary" onclick="location.href='/leaderboard'">Leaderboard</button>
+                <button class="btn btn-secondary" onclick="location.href='/logout'">Sign Out</button>
+            </div>
+        </div>
+
+        <div class="matrix-display" style="display:block; margin-bottom:16px;">
+            <table class="matrix" style="width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="padding:12px; font-weight:700;">Current ELO</td>
+                        <td style="padding:12px;">{{ elo }}</td>
+                        <td style="padding:12px; font-weight:700;">Current Ranked Threshold</td>
+                        <td style="padding:12px;">{{ "%.2f"|format(ranked_threshold) }}s</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="matrix-display" style="display:block;">
+            <table class="matrix" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:12px;">Mode</th>
+                        <th style="text-align:left; padding:12px;">Personal Best</th>
+                        <th style="text-align:left; padding:12px;">Completed Solves</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding:12px;">FMC</td>
+                        <td style="padding:12px;">{% if best.fmc is not none %}{{ best.fmc }} moves{% else %}-{% endif %}</td>
+                        <td style="padding:12px;">{{ counts.fmc }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px;">Timed</td>
+                        <td style="padding:12px;">{% if best.timed is not none %}{{ "%.2f"|format(best.timed) }}s{% else %}-{% endif %}</td>
+                        <td style="padding:12px;">{{ counts.timed }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px;">Seeded</td>
+                        <td style="padding:12px;">{% if best.seeded is not none %}{{ "%.2f"|format(best.seeded) }}s{% else %}-{% endif %}</td>
+                        <td style="padding:12px;">{{ counts.seeded }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px;">Leaderboard</td>
+                        <td style="padding:12px;">{% if best.leaderboard is not none %}{{ "%.2f"|format(best.leaderboard) }}s{% else %}-{% endif %}</td>
+                        <td style="padding:12px;">{{ counts.leaderboard }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px;">Ranked</td>
+                        <td style="padding:12px;">{% if best.ranked is not none %}{{ "%.2f"|format(best.ranked) }}s{% else %}-{% endif %}</td>
+                        <td style="padding:12px;">{{ counts.ranked }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

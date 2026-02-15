@@ -1,0 +1,197 @@
+{
+  "aaa": {
+    "password_hash": "scrypt:32768:8:1$oDDRmtn5Y5ZloQcc$31b9fee8f32eac83cddec1824437b75103db604848a8d324d31ce11b8869cd988ba04ed1ea2e5ac1605f6fca97fe45b15c40a5f5d36c70bfa69606b696652c55",
+    "timed_records": [
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-13T23:25:14.436513",
+        "seed": 793346,
+        "time": 29.48,
+        "threshold": 30.0,
+        "elo_before": 0,
+        "elo_after": 30,
+        "elo_delta": 30
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-13T23:25:53.327665",
+        "seed": 455818,
+        "time": 24.88,
+        "threshold": 29.91,
+        "elo_before": 30,
+        "elo_after": 63,
+        "elo_delta": 33
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-13T23:29:34.201354",
+        "seed": 128267,
+        "time": 32.48,
+        "threshold": 29.83,
+        "elo_before": 63,
+        "elo_after": 30,
+        "elo_delta": -33
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-13T23:36:54.598244",
+        "seed": 796332,
+        "time": 43.21,
+        "threshold": 29.91,
+        "elo_before": 30,
+        "elo_after": 0,
+        "elo_delta": -43
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-13T23:38:47.867128",
+        "seed": 783530,
+        "time": 25.46,
+        "threshold": 30.0,
+        "elo_before": 0,
+        "elo_after": 33,
+        "elo_delta": 33
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-13T23:40:30.555717",
+        "seed": 955637,
+        "time": 25.05,
+        "threshold": 29.9,
+        "elo_before": 33,
+        "elo_after": 66,
+        "elo_delta": 33
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-13T23:42:17.354397",
+        "seed": 453153,
+        "time": 32.59,
+        "threshold": 29.82,
+        "elo_before": 66,
+        "elo_after": 33,
+        "elo_delta": -33
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-13T23:44:00.312683",
+        "seed": 148431,
+        "time": 25.56,
+        "threshold": 29.9,
+        "elo_before": 33,
+        "elo_after": 66,
+        "elo_delta": 33
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-13T23:45:23.086247",
+        "seed": 755168,
+        "time": 39.5,
+        "threshold": 29.82,
+        "elo_before": 66,
+        "elo_after": 26,
+        "elo_delta": -40
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-13T23:50:18.705620",
+        "seed": 579627,
+        "time": 13.29,
+        "threshold": 29.92,
+        "elo_before": 26,
+        "elo_after": 67,
+        "elo_delta": 41
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-14T22:15:12.516919",
+        "seed": 674274,
+        "time": 10.76,
+        "threshold": 29.82,
+        "elo_before": 67,
+        "elo_after": 109,
+        "elo_delta": 42
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-14T22:15:53.794821",
+        "seed": 572405,
+        "time": 26.73,
+        "threshold": 29.71,
+        "elo_before": 109,
+        "elo_after": 136,
+        "elo_delta": 27
+      },
+      {
+        "mode": "leaderboard",
+        "timestamp": "2026-02-14T22:17:08.457110",
+        "seed": 696865,
+        "time": 36.81
+      },
+      {
+        "mode": "fmc",
+        "timestamp": "2026-02-14T22:17:40.860493",
+        "seed": 772310,
+        "moves": 9
+      },
+      {
+        "mode": "fmc",
+        "timestamp": "2026-02-14T22:18:45.246436",
+        "seed": 508201,
+        "moves": 8
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-14T22:19:05.250486",
+        "seed": 172011,
+        "time": 15.51,
+        "threshold": 29.65,
+        "elo_before": 136,
+        "elo_after": 175,
+        "elo_delta": 39
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-14T22:19:32.116110",
+        "seed": 944573,
+        "time": 11.92,
+        "threshold": 29.56,
+        "elo_before": 175,
+        "elo_after": 216,
+        "elo_delta": 41
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-14T22:19:58.276502",
+        "seed": 619816,
+        "time": 13.41,
+        "threshold": 29.47,
+        "elo_before": 216,
+        "elo_after": 256,
+        "elo_delta": 40
+      },
+      {
+        "mode": "ranked",
+        "timestamp": "2026-02-14T22:20:46.016523",
+        "seed": 520472,
+        "time": 22.27,
+        "threshold": 29.38,
+        "elo_before": 256,
+        "elo_after": 288,
+        "elo_delta": 32
+      },
+      {
+        "mode": "fmc",
+        "timestamp": "2026-02-14T22:21:50.324449",
+        "seed": 223482,
+        "moves": 4
+      }
+    ],
+    "elo": 288
+  },
+  "bbb": {
+    "password_hash": "scrypt:32768:8:1$K0sKaFWUoAi5EEB5$7127f02cd5a48bebda500948fd3b9eaabcca733a1cc085375e45e75967a7a47c191c23cc456730180bf97105ac6d23c59ac29a0fe0e1e16c757b39d401da2161",
+    "timed_records": [],
+    "elo": 0
+  }
+}

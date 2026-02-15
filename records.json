@@ -1,7 +1,17 @@
 [
   {
-    "mode": "timed",
-    "timestamp": "2026-02-13T20:26:43.740687",
-    "time": 26
+    "mode": "fmc",
+    "timestamp": "2026-02-13T22:38:17.017385",
+    "moves": 9
+  },
+  {
+    "mode": "fmc",
+    "timestamp": "2026-02-13T22:38:59.079650",
+    "moves": 4
+  },
+  {
+    "mode": "fmc",
+    "timestamp": "2026-02-13T22:41:36.941700",
+    "moves": 7
   }
 ]

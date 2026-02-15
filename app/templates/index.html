@@ -15,14 +15,29 @@
                 <select id="mode-select" onchange="changeMode()">
                     <option value="fmc">FMC (Fewest Moves)</option>
                     <option value="timed">Timed</option>
+                    <option value="seeded">Seeded</option>
+                    <option value="leaderboard">Leaderboard</option>
+                    <option value="ranked">Ranked</option>
                 </select>
             </div>
         </div>
-        
-        <div class="info-panel">
+        <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:-12px; margin-bottom:18px;">
+            <span style="color:#334155; font-weight:600; font-size:0.95em;">Signed in as {{ username }}</span>
+            <button class="btn btn-secondary" style="padding:8px 14px; font-size:0.85em;" onclick="location.href='/stats'">Stats</button>
+            <button class="btn btn-secondary" style="padding:8px 14px; font-size:0.85em;" onclick="location.href='/leaderboard'">Leaderboard</button>
+            <button class="btn btn-secondary" style="padding:8px 14px; font-size:0.85em;" onclick="location.href='/logout'">Sign Out</button>
+        </div>
+        {% if is_debug_user %}
+        <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:-8px; margin-bottom:18px;">
+            <button class="btn btn-secondary" style="padding:8px 14px; font-size:0.85em;" onclick="clearMyRecords()">Debug: Clear My Records</button>
+            <button class="btn btn-secondary" style="padding:8px 14px; font-size:0.85em;" onclick="clearAllRecords()">Debug: Delete All Records</button>
+        </div>
+        {% endif %}
+
+        <div class="info-panel" id="info-panel">
             <div class="info-item">
-                <span class="label">Size:</span>
-                <span class="value">{{ matrix.size }}×{{ matrix.size }}</span>
+                <span class="label" id="size-or-elo-label">Size:</span>
+                <span class="value" id="size-or-elo-value">{{ matrix.size }}x{{ matrix.size }}</span>
             </div>
             <div class="info-item">
                 <span class="label">Difficulty:</span>
@@ -43,6 +58,18 @@
             <div class="info-item" id="time-item" style="display:none;">
                 <span class="label">Time:</span>
                 <span class="value" id="time-count">0:00</span>
+            </div>
+            <div class="info-item" id="seed-item" style="display:none;">
+                <span class="label">Seed:</span>
+                <span class="value" id="seed-value">{{ matrix.seed }}</span>
+            </div>
+            <div class="info-item" id="elo-item" style="display:none;">
+                <span class="label">ELO:</span>
+                <span class="value" id="elo-value">{{ current_elo }}</span>
+            </div>
+            <div class="info-item" id="threshold-item" style="display:none;">
+                <span class="label">Threshold:</span>
+                <span class="value" id="threshold-value">{{ "%.2f"|format(ranked_threshold) }}s</span>
             </div>
             <div class="info-item">
                 <span class="label">Status:</span>
@@ -67,104 +94,204 @@
         </div>
 
         <div class="start-timed-container" id="start-timed-container" style="display:none;">
-            <button class="btn btn-start" onclick="startTimedSolve()">Start Solve</button>
+            <div id="seed-controls" style="display:none; width:100%; max-width:320px;">
+                <input type="number" id="seed-input" placeholder="Enter seed" style="width:100%; padding:12px; border:2px solid #ddd; border-radius:6px; font-size:1em; margin-bottom:10px;">
+            </div>
+            <button class="btn btn-start" onclick="startSolve()">Start Solve</button>
         </div>
 
         <div class="transformation-input" id="transformation-container">
-            <input type="text" id="transformation-input" placeholder="Enter transformation (e.g., R1 = R1 / 2)" />
+            <input type="text" id="transformation-input" placeholder="Enter transformation (e.g., R1 = R1 / 2)">
             <button class="btn btn-secondary" onclick="applyTransformation()">Apply</button>
             <div id="error-message" class="error-message"></div>
         </div>
 
         <div class="button-container">
             <button class="btn btn-primary" onclick="location.href='/'">Generate New Matrix</button>
+            <button class="btn btn-secondary" id="new-solve-btn" onclick="newSolve()" style="display:none;">New Solve</button>
         </div>
     </div>
 
     <script>
+        const initialMode = '{{ initial_mode }}';
+        const autoStartTimed = {{ 'true' if auto_start_timed else 'false' }};
+        const selectedSeed = '{{ selected_seed }}';
+        const initialElo = {{ current_elo }};
+        const initialRankedThreshold = {{ "%.2f"|format(ranked_threshold) }};
         let currentMode = 'fmc';
         let timerInterval = null;
         let startTime = null;
         let timedStarted = false;
-        
+
         function changeMode() {
             const select = document.getElementById('mode-select');
+            const infoPanel = document.getElementById('info-panel');
+            const seedControls = document.getElementById('seed-controls');
+            const newSolveBtn = document.getElementById('new-solve-btn');
+            const seedItem = document.getElementById('seed-item');
+            const eloItem = document.getElementById('elo-item');
+            const thresholdItem = document.getElementById('threshold-item');
+            const sizeOrEloLabel = document.getElementById('size-or-elo-label');
+            const sizeOrEloValue = document.getElementById('size-or-elo-value');
+            const statusDiv = document.getElementById('status');
+            const input = document.getElementById('transformation-input');
             currentMode = select.value;
-            
-            if (currentMode === 'timed') {
-                // Show start button, hide matrix and transformation input
+
+            statusDiv.textContent = 'Not Solved';
+            statusDiv.style.color = 'inherit';
+            input.disabled = false;
+            sizeOrEloValue.style.color = 'inherit';
+
+            if (currentMode === 'timed' || currentMode === 'seeded' || currentMode === 'leaderboard' || currentMode === 'ranked') {
                 document.getElementById('start-timed-container').style.display = 'block';
                 document.getElementById('matrix-display').style.display = 'none';
                 document.getElementById('transformation-container').style.display = 'none';
                 document.getElementById('moves-item').style.display = 'none';
                 document.getElementById('time-item').style.display = 'block';
+                seedItem.style.display = 'none';
+                eloItem.style.display = currentMode === 'ranked' ? 'flex' : 'none';
+                thresholdItem.style.display = currentMode === 'ranked' ? 'flex' : 'none';
+                if (currentMode === 'ranked') {
+                    sizeOrEloLabel.textContent = 'ELO Change:';
+                    sizeOrEloValue.textContent = '0';
+                } else {
+                    sizeOrEloLabel.textContent = 'Size:';
+                    sizeOrEloValue.textContent = '{{ matrix.size }}x{{ matrix.size }}';
+                }
+                infoPanel.style.display = 'none';
+                seedControls.style.display = currentMode === 'seeded' ? 'block' : 'none';
+                newSolveBtn.style.display = 'inline-block';
                 timedStarted = false;
             } else {
-                // FMC mode
                 document.getElementById('start-timed-container').style.display = 'none';
                 document.getElementById('matrix-display').style.display = 'block';
                 document.getElementById('transformation-container').style.display = 'block';
                 document.getElementById('moves-item').style.display = 'block';
                 document.getElementById('time-item').style.display = 'none';
-                
-                // Stop timer if running
+                seedItem.style.display = 'flex';
+                eloItem.style.display = 'none';
+                thresholdItem.style.display = 'none';
+                sizeOrEloLabel.textContent = 'Size:';
+                sizeOrEloValue.textContent = '{{ matrix.size }}x{{ matrix.size }}';
+                infoPanel.style.display = 'grid';
+                seedControls.style.display = 'none';
+                newSolveBtn.style.display = 'none';
+
                 if (timerInterval) clearInterval(timerInterval);
                 startTime = null;
             }
         }
-        
-        function startTimedSolve() {
-            // Show matrix and transformation input
+
+        function startSolve(skipRegenerate = false) {
+            if (!skipRegenerate) {
+                let url = '/new?autostart=1';
+                if (currentMode === 'seeded') {
+                    const seedInput = document.getElementById('seed-input');
+                    let seedValue = seedInput.value.trim();
+                    if (!seedValue) {
+                        seedValue = String(Math.floor(Math.random() * 900000) + 100000);
+                        seedInput.value = seedValue;
+                    }
+                    url += '&mode=' + encodeURIComponent(currentMode) + '&seed=' + encodeURIComponent(seedValue);
+                } else if (currentMode === 'leaderboard') {
+                    url += '&mode=leaderboard';
+                } else if (currentMode === 'ranked') {
+                    url += '&mode=ranked';
+                } else {
+                    url += '&mode=timed';
+                }
+                location.href = url;
+                return;
+            }
+
             document.getElementById('start-timed-container').style.display = 'none';
             document.getElementById('matrix-display').style.display = 'block';
             document.getElementById('transformation-container').style.display = 'block';
-            
-            // Start timer
+            const input = document.getElementById('transformation-input');
+            input.disabled = false;
             timedStarted = true;
             startTimer();
-            
-            // Focus on input field
-            document.getElementById('transformation-input').focus();
+            input.focus();
         }
-        
+
+        function newSolve() {
+            if (currentMode === 'leaderboard' || currentMode === 'seeded' || currentMode === 'ranked') {
+                location.href = '/new?mode=' + encodeURIComponent(currentMode);
+                return;
+            }
+            location.href = '/new?mode=timed';
+        }
+
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
             startTime = Date.now();
             timerInterval = setInterval(() => {
-                const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                const minutes = Math.floor(elapsed / 60);
-                const seconds = elapsed % 60;
-                document.getElementById('time-count').textContent = 
-                    minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-            }, 100);
+                const elapsedSeconds = (Date.now() - startTime) / 1000;
+                if (currentMode === 'leaderboard' || currentMode === 'ranked') {
+                    document.getElementById('time-count').textContent = elapsedSeconds.toFixed(2) + 's';
+                } else {
+                    const elapsedWhole = Math.floor(elapsedSeconds);
+                    const minutes = Math.floor(elapsedWhole / 60);
+                    const seconds = elapsedWhole % 60;
+                    document.getElementById('time-count').textContent =
+                        minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                }
+            }, 50);
         }
-        
+
         function stopTimer() {
             if (timerInterval) clearInterval(timerInterval);
         }
-        
+
+        function clearMyRecords() {
+            if (!confirm('Clear your records?')) return;
+            fetch('/debug/clear_my_records', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    alert('Your records were cleared.');
+                })
+                .catch(error => alert('Error: ' + error.message));
+        }
+
+        function clearAllRecords() {
+            if (!confirm('Delete all records for all users?')) return;
+            fetch('/debug/clear_all_records', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    alert('All records were deleted.');
+                })
+                .catch(error => alert('Error: ' + error.message));
+        }
+
         function applyTransformation() {
             const input = document.getElementById('transformation-input');
             const transformation = input.value.trim();
             const errorDiv = document.getElementById('error-message');
-            
+
             if (!transformation) {
                 errorDiv.textContent = 'Please enter a transformation';
                 return;
             }
-            
-            // Calculate elapsed time in timed mode
+
             let timeElapsed = null;
-            if (currentMode === 'timed' && startTime) {
-                timeElapsed = Math.floor((Date.now() - startTime) / 1000);
+            if ((currentMode === 'timed' || currentMode === 'seeded' || currentMode === 'leaderboard' || currentMode === 'ranked') && startTime) {
+                timeElapsed = Number(((Date.now() - startTime) / 1000).toFixed(2));
             }
-            
+
             fetch('/transform', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     transformation: transformation,
                     mode: currentMode,
                     time_elapsed: timeElapsed
@@ -184,70 +311,89 @@
                 errorDiv.textContent = 'Error: ' + error.message;
             });
         }
-        
+
         function updateMatrix(data) {
             const table = document.getElementById('matrix-table');
             const tbody = table.querySelector('tbody');
-            
-            // Clear existing rows
+
             tbody.innerHTML = '';
-            
-            // Add updated rows
+
             const size = data.coefficients.length;
             for (let i = 0; i < size; i++) {
                 const row = document.createElement('tr');
-                
-                // Add coefficient columns
+
                 for (let j = 0; j < size; j++) {
                     const td = document.createElement('td');
                     td.className = 'coefficient';
                     td.textContent = data.coefficients[i][j].toFixed(2);
                     row.appendChild(td);
                 }
-                
-                // Add divider
+
                 const divider = document.createElement('td');
                 divider.className = 'divider';
                 divider.textContent = '|';
                 row.appendChild(divider);
-                
-                // Add output column
+
                 const output = document.createElement('td');
                 output.className = 'output';
                 output.textContent = data.augmented[i].toFixed(2);
                 row.appendChild(output);
-                
+
                 tbody.appendChild(row);
             }
-            
-            // Update counter based on mode
+
             if (currentMode === 'fmc') {
                 document.getElementById('moves-count').textContent = data.moves;
             }
-            
-            // Update status
+
             const statusDiv = document.getElementById('status');
             if (data.is_solved) {
-                statusDiv.textContent = '✓ Solved!';
+                statusDiv.textContent = 'Solved!';
                 statusDiv.style.color = '#4caf50';
+                if (currentMode === 'timed' || currentMode === 'seeded' || currentMode === 'leaderboard' || currentMode === 'ranked') {
+                    document.getElementById('info-panel').style.display = 'grid';
+                    document.getElementById('seed-item').style.display = 'flex';
+                    document.getElementById('seed-value').textContent = data.seed;
+                }
+                if (currentMode === 'ranked') {
+                    if (typeof data.elo_after !== 'undefined') {
+                        document.getElementById('elo-item').style.display = 'flex';
+                        document.getElementById('threshold-item').style.display = 'flex';
+                        document.getElementById('elo-value').textContent = data.elo_after;
+                        document.getElementById('threshold-value').textContent = Number(data.ranked_threshold).toFixed(2) + 's';
+                        const delta = Number(data.elo_delta || 0);
+                        const deltaPrefix = delta > 0 ? '+' : '';
+                        document.getElementById('size-or-elo-label').textContent = 'ELO Change:';
+                        document.getElementById('size-or-elo-value').textContent = deltaPrefix + delta;
+                        document.getElementById('size-or-elo-value').style.color = delta >= 0 ? '#2e7d32' : '#c62828';
+                        statusDiv.textContent = 'Solved! ELO ' + deltaPrefix + delta + ' (' + data.elo_before + ' -> ' + data.elo_after + ')';
+                    }
+                }
                 const input = document.getElementById('transformation-input');
                 input.disabled = true;
                 stopTimer();
-                
-                // Show message and reload after 1.5 seconds
-                setTimeout(() => {
-                    location.href = '/';
-                }, 1500);
             } else {
                 statusDiv.textContent = 'Not Solved';
                 statusDiv.style.color = 'inherit';
             }
         }
-        
-        // Allow Enter key to apply transformation
+
         document.getElementById('transformation-input').addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 applyTransformation();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const modeSelect = document.getElementById('mode-select');
+            document.getElementById('seed-input').value = selectedSeed;
+            document.getElementById('elo-value').textContent = initialElo;
+            document.getElementById('threshold-value').textContent = Number(initialRankedThreshold).toFixed(2) + 's';
+            modeSelect.value = initialMode;
+            changeMode();
+
+            if ((initialMode === 'timed' || initialMode === 'seeded' || initialMode === 'leaderboard' || initialMode === 'ranked') && autoStartTimed) {
+                startSolve(true);
             }
         });
     </script>

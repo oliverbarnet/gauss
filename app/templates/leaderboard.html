@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container" style="max-width: 760px;">
+        <div class="header" style="margin-bottom: 16px;">
+            <h1>Leaderboard</h1>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:10px;">
+            <span style="color:#334155; font-weight:600;">Signed in as {{ username }}</span>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-secondary" onclick="location.href='/'">Back To Game</button>
+                <button class="btn btn-secondary" onclick="location.href='/stats'">My Stats</button>
+                <button class="btn btn-secondary" onclick="location.href='/logout'">Sign Out</button>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom:14px;">
+            <button id="avg-tab-btn" class="btn btn-secondary" style="padding:8px 14px; font-size:0.9em;" onclick="showLeaderboardTab('avg')">Average Times</button>
+            <button id="fast-tab-btn" class="btn btn-secondary" style="padding:8px 14px; font-size:0.9em;" onclick="showLeaderboardTab('fast')">Fastest Single Times</button>
+            <button id="elo-tab-btn" class="btn btn-secondary" style="padding:8px 14px; font-size:0.9em;" onclick="showLeaderboardTab('elo')">ELO Ratings</button>
+        </div>
+
+        <div id="avg-tab" class="matrix-display" style="display:block;">
+            {% if rows %}
+            <table class="matrix" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:12px;">Rank</th>
+                        <th style="text-align:left; padding:12px;">User</th>
+                        <th style="text-align:left; padding:12px;">Average Time (s)</th>
+                        <th style="text-align:left; padding:12px;">Solves</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td style="padding:12px;">{{ loop.index }}</td>
+                        <td style="padding:12px;">{{ row.username }}</td>
+                        <td style="padding:12px;">{{ "%.2f"|format(row.average_time) }}</td>
+                        <td style="padding:12px;">{{ row.solve_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div style="padding:12px; color:#334155; font-weight:600;">No timed solves yet.</div>
+            {% endif %}
+        </div>
+
+        <div id="fast-tab" class="matrix-display" style="display:none;">
+            {% if fastest_runs %}
+            <table class="matrix" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:12px;">Rank</th>
+                        <th style="text-align:left; padding:12px;">User</th>
+                        <th style="text-align:left; padding:12px;">Time (s)</th>
+                        <th style="text-align:left; padding:12px;">Seed</th>
+                        <th style="text-align:left; padding:12px;">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for run in fastest_runs %}
+                    <tr>
+                        <td style="padding:12px;">{{ loop.index }}</td>
+                        <td style="padding:12px;">{{ run.username }}</td>
+                        <td style="padding:12px;">{{ "%.2f"|format(run.time) }}</td>
+                        <td style="padding:12px;">{{ run.seed }}</td>
+                        <td style="padding:12px;">{{ run.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div style="padding:12px; color:#334155; font-weight:600;">No leaderboard runs yet.</div>
+            {% endif %}
+        </div>
+
+        <div id="elo-tab" class="matrix-display" style="display:none;">
+            {% if elo_rows %}
+            <table class="matrix" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:12px;">Rank</th>
+                        <th style="text-align:left; padding:12px;">User</th>
+                        <th style="text-align:left; padding:12px;">ELO</th>
+                        <th style="text-align:left; padding:12px;">Ranked Solves</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in elo_rows %}
+                    <tr>
+                        <td style="padding:12px;">{{ loop.index }}</td>
+                        <td style="padding:12px;">{{ row.username }}</td>
+                        <td style="padding:12px;">{{ row.elo }}</td>
+                        <td style="padding:12px;">{{ row.ranked_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div style="padding:12px; color:#334155; font-weight:600;">No accounts found.</div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        function showLeaderboardTab(tab) {
+            const avgTab = document.getElementById('avg-tab');
+            const fastTab = document.getElementById('fast-tab');
+            const eloTab = document.getElementById('elo-tab');
+            const avgBtn = document.getElementById('avg-tab-btn');
+            const fastBtn = document.getElementById('fast-tab-btn');
+            const eloBtn = document.getElementById('elo-tab-btn');
+
+            if (tab === 'fast') {
+                avgTab.style.display = 'none';
+                fastTab.style.display = 'block';
+                eloTab.style.display = 'none';
+                avgBtn.style.opacity = '0.75';
+                fastBtn.style.opacity = '1';
+                eloBtn.style.opacity = '0.75';
+            } else if (tab === 'elo') {
+                avgTab.style.display = 'none';
+                fastTab.style.display = 'none';
+                eloTab.style.display = 'block';
+                avgBtn.style.opacity = '0.75';
+                fastBtn.style.opacity = '0.75';
+                eloBtn.style.opacity = '1';
+            } else {
+                avgTab.style.display = 'block';
+                fastTab.style.display = 'none';
+                eloTab.style.display = 'none';
+                avgBtn.style.opacity = '1';
+                fastBtn.style.opacity = '0.75';
+                eloBtn.style.opacity = '0.75';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            showLeaderboardTab('avg');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In or Sign Up</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 55%, #334e68 100%);
+            padding: 20px;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+        }
+        h1 {
+            margin: 0 0 18px;
+            font-size: 1.6rem;
+            color: #1f2937;
+            text-align: center;
+        }
+        .switch {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+        .switch a {
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #334155;
+            background: #e2e8f0;
+        }
+        .switch a.active {
+            color: white;
+            background: #1e3a5f;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #334155;
+        }
+        input {
+            width: 100%;
+            margin-bottom: 14px;
+            padding: 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1e3a5f;
+        }
+        .error {
+            margin-bottom: 12px;
+            color: #b91c1c;
+            font-weight: 600;
+        }
+        .success {
+            margin-bottom: 12px;
+            color: #166534;
+            font-weight: 600;
+        }
+        button {
+            width: 100%;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            background: #1e3a5f;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <h1>Gaussian Elimination</h1>
+
+        <div class="switch">
+            <a href="/?auth=signin" class="{{ 'active' if auth_mode == 'signin' else '' }}">Sign In</a>
+            <a href="/?auth=signup" class="{{ 'active' if auth_mode == 'signup' else '' }}">Sign Up</a>
+        </div>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        {% if success %}
+        <div class="success">{{ success }}</div>
+        {% endif %}
+
+        {% if auth_mode == 'signup' %}
+        <form method="post" action="/signup">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" required minlength="3" maxlength="32">
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required minlength="6">
+
+            <button type="submit">Create Account</button>
+        </form>
+        {% else %}
+        <form method="post" action="/signin">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" required>
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required>
+
+            <button type="submit">Sign In</button>
+        </form>
+        {% endif %}
+    </div>
+</body>
+</html>

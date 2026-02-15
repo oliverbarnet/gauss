@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 55%, #334e68 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -19,7 +19,7 @@ body {
     border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     padding: 40px;
-    max-width: 600px;
+    max-width: 980px;
     width: 100%;
 }
 
@@ -54,7 +54,7 @@ h1 {
 
 .mode-selector label {
     font-weight: 600;
-    color: #667eea;
+    color: #2f4f74;
 }
 
 .mode-selector select {
@@ -69,7 +69,7 @@ h1 {
 
 .mode-selector select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #2f4f74;
 }
 
 .info-panel {
@@ -89,7 +89,7 @@ h1 {
 
 .info-item .label {
     font-weight: 600;
-    color: #667eea;
+    color: #2f4f74;
     font-size: 0.9em;
     margin-bottom: 5px;
 }
@@ -123,9 +123,9 @@ h1 {
 }
 
 .matrix td.coefficient {
-    background: #e3f2fd;
-    border: 1px solid #90caf9;
-    color: #1565c0;
+    background: #dbeafe;
+    border: 1px solid #93c5fd;
+    color: #1e3a8a;
     font-weight: 500;
 }
 
@@ -136,9 +136,9 @@ h1 {
 }
 
 .matrix td.output {
-    background: #f3e5f5;
-    border: 1px solid #ce93d8;
-    color: #7b1fa2;
+    background: #e2e8f0;
+    border: 1px solid #94a3b8;
+    color: #334155;
     font-weight: 500;
 }
 
@@ -159,13 +159,13 @@ h1 {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e3a5f 0%, #334e68 100%);
     color: white;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 20px rgba(30, 58, 95, 0.45);
 }
 
 .btn-primary:active {
@@ -173,12 +173,12 @@ h1 {
 }
 
 .btn-secondary {
-    background: #667eea;
+    background: #2f4f74;
     color: white;
 }
 
 .btn-secondary:hover {
-    background: #5568d3;
+    background: #253f5c;
     transform: translateY(-2px);
 }
 
@@ -187,7 +187,7 @@ h1 {
 }
 
 .btn-start {
-    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    background: linear-gradient(135deg, #274c77 0%, #3a6288 100%);
     color: white;
     font-size: 1.3em;
     padding: 20px 50px;
@@ -195,7 +195,7 @@ h1 {
 
 .btn-start:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+    box-shadow: 0 5px 20px rgba(39, 76, 119, 0.45);
 }
 
 .btn-start:active {
@@ -229,7 +229,7 @@ h1 {
 
 .transformation-input input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #2f4f74;
 }
 
 .error-message {

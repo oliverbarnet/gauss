@@ -2,7 +2,7 @@ import random
 from collections import deque
 from copy import deepcopy
 
-def generate_matrix(difficulty: int = 50, compressibility: int = 50):
+def generate_matrix(difficulty: int = 50, compressibility: int = 50, seed: int | None = None):
     """
     Generate a solvable 3x3 matrix with controllable difficulty and compressibility.
     
@@ -22,6 +22,7 @@ def generate_matrix(difficulty: int = 50, compressibility: int = 50):
     # Clamp parameters to 0-100
     difficulty = max(0, min(100, difficulty))
     compressibility = max(0, min(100, compressibility))
+    rng = random.Random(seed) if seed is not None else random
     
     # Fixed size at 3x3
     size = 3
@@ -37,20 +38,20 @@ def generate_matrix(difficulty: int = 50, compressibility: int = 50):
         # Put random small values on and above diagonal
         for i in range(size):
             for j in range(i, size):
-                values[i][j] = random.randint(1, 3)
+                values[i][j] = rng.randint(1, 3)
     elif compressibility < 50:
         # Moderately compressible: fewer moves
-        values = [[random.randint(1, 6) for _ in range(size)] for _ in range(size)]
+        values = [[rng.randint(1, 6) for _ in range(size)] for _ in range(size)]
         # Add some strategic zeros
         for i in range(size):
-            if random.random() < 0.4:
-                values[i][random.randint(0, size-1)] = 0
+            if rng.random() < 0.4:
+                values[i][rng.randint(0, size-1)] = 0
     else:
         # High compressibility: random coefficients for more moves
-        values = [[random.randint(1, max_coeff) for _ in range(size)] for _ in range(size)]
+        values = [[rng.randint(1, max_coeff) for _ in range(size)] for _ in range(size)]
     
     # Generate a random solution vector
-    solution = [random.randint(1, max_coeff) for _ in range(size)]
+    solution = [rng.randint(1, max_coeff) for _ in range(size)]
     
     # Compute the outputs (augmented column) by multiplying matrix by solution
     outputs = []
